@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>MediQuote | Instant Cost Estimate</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>&#9829;</text></svg>" />
+</head>
+<body>
+
+  <!-- ================= top bar ================= -->
+  <header class="topbar">
+    <div class="wrap topbar__inner">
+      <a class="brand" href="/">
+        <span class="brand__mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+          </svg>
+        </span>
+        <span class="brand__text">Medi<span>Quote</span></span>
+      </a>
+      <nav class="topbar__nav">
+        <a href="#quote">Get a quote</a>
+        <a href="#insights">Model performance</a>
+        <a href="#how">How it works</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <!-- ================= hero ================= -->
+    <section class="hero">
+      <div class="wrap hero__inner">
+        <div class="hero__copy">
+          <p class="eyebrow">Medical cost prediction</p>
+          <h1>Know your medical cost<br />before you apply.</h1>
+          <p class="lede">
+            Answer six questions and get an estimated annual charge from a
+            degree-2 polynomial regression fitted on 1,338 real insurance records.
+          </p>
+          <ul class="hero__stats">
+            <li><strong id="stat-r2">&mdash;</strong><span>model R&sup2;</span></li>
+            <li><strong id="stat-mae">&mdash;</strong><span>avg. error</span></li>
+            <li><strong id="stat-rmse">&mdash;</strong><span>root mean sq.</span></li>
+          </ul>
+        </div>
+        <div class="hero__art" aria-hidden="true">
+          <div class="pulse-card">
+            <div class="pulse-card__row">
+              <span>Sample profile</span>
+              <span class="chip chip--muted">45 &middot; male &middot; non-smoker</span>
+            </div>
+            <svg class="pulse" viewBox="0 0 320 90" preserveAspectRatio="none">
+              <path d="M0 52 H70 l14 -30 l12 62 l14 -44 l10 12 H170 l14 -30 l12 62 l14 -44 l10 12 H320"
+                    fill="none" stroke="currentColor" stroke-width="2.5"
+                    stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+            <div class="pulse-card__foot">
+              <span>Estimated annual charges</span>
+              <strong>$7,850</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= quote: form + result ================= -->
+    <section class="wrap quote" id="quote">
+      <form class="card form" id="quote-form" novalidate>
+        <header class="card__head">
+          <h2>Your details</h2>
+          <p>All fields are used only to generate your estimate.</p>
+        </header>
+
+        <div class="field">
+          <div class="field__top">
+            <label for="age">Age</label>
+            <span class="field__hint">18&ndash;100</span>
+          </div>
+          <input id="age" name="age" type="number" min="18" max="100" step="1" value="45" required />
+        </div>
+
+        <fieldset class="field">
+          <legend>Sex</legend>
+          <div class="segmented" role="radiogroup" aria-label="Sex">
+            <label><input type="radio" name="sex" value="female" /><span>Female</span></label>
+            <label><input type="radio" name="sex" value="male" checked /><span>Male</span></label>
+          </div>
+        </fieldset>
+
+        <div class="field">
+          <div class="field__top">
+            <label for="bmi">BMI</label>
+            <span class="field__badge" id="bmi-badge">&mdash;</span>
+          </div>
+          <input id="bmi" name="bmi" type="number" min="10" max="70" step="0.1" value="27.5" required />
+          <input id="bmi-range" class="slider" type="range" min="10" max="70" step="0.1" value="27.5"
+                 aria-label="BMI slider" />
+        </div>
+
+        <div class="field">
+          <div class="field__top">
+            <label for="children">Number of children</label>
+            <span class="field__hint">dependents covered</span>
+          </div>
+          <div class="stepper">
+            <button type="button" class="stepper__btn" data-step="-1" aria-label="Fewer children">&minus;</button>
+            <input id="children" name="children" type="number" min="0" max="10" step="1" value="1" required />
+            <button type="button" class="stepper__btn" data-step="1" aria-label="More children">+</button>
+          </div>
+        </div>
+
+        <fieldset class="field">
+          <legend>Do you smoke?</legend>
+          <div class="segmented" role="radiogroup" aria-label="Smoking status">
+            <label><input type="radio" name="smoker" value="no" checked /><span>No</span></label>
+            <label><input type="radio" name="smoker" value="yes" /><span>Yes</span></label>
+          </div>
+        </fieldset>
+
+        <div class="field">
+          <div class="field__top">
+            <label for="region">Region</label>
+          </div>
+          <select id="region" name="region" required>
+            <option value="northeast">Northeast</option>
+            <option value="northwest">Northwest</option>
+            <option value="southeast">Southeast</option>
+            <option value="southwest" selected>Southwest</option>
+          </select>
+        </div>
+
+        <p class="form__error" id="form-error" role="alert" hidden></p>
+
+        <button class="btn btn--primary" type="submit" id="submit">
+          <span class="spinner" aria-hidden="true"></span>
+          <span class="btn__label">Calculate cost</span>
+        </button>
+        <p class="form__fine">
+          Estimates are illustrative only and are not a binding quote.
+        </p>
+      </form>
+
+      <!-- Result card: dark and inverted, sticky on wide screens -->
+      <div class="card result" id="result" aria-live="polite">
+        <div class="result__placeholder" id="result-empty">
+          <div class="result__icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="2.5" y="5" width="19" height="14" rx="3" />
+              <path d="M2.5 10h19M6.5 15h4" />
+            </svg>
+          </div>
+          <h3>Your estimate will appear here</h3>
+          <p>Fill in the form and we&rsquo;ll price your plan in under a second.</p>
+        </div>
+
+        <!-- Everything inside is filled in from the API response -->
+        <div class="result__body" id="result-body" hidden>
+          <p class="result__label">Estimated annual charges</p>
+          <p class="result__amount" id="out-amount">$0</p>
+          <p class="result__monthly" id="out-monthly">&mdash; per month</p>
+
+          <div class="tier" id="out-tier">
+            <span class="tier__dot"></span>
+            <div>
+              <strong id="out-tier-name">&mdash;</strong>
+              <p id="out-tier-note"></p>
+            </div>
+          </div>
+
+          <div class="priced">
+            <p class="priced__title">The inputs we priced</p>
+            <dl class="priced__list" id="out-inputs"></dl>
+            <p class="priced__note">
+              Sent to the model as JSON and echoed back by the API unchanged.
+            </p>
+          </div>
+
+          <button class="btn btn--ghost" type="button" id="copy-btn">Copy summary</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= insights ================= -->
+    <section class="insights" id="insights">
+      <div class="wrap">
+        <header class="insights__head">
+          <p class="eyebrow">Model diagnostics</p>
+          <h2>How well the model actually performs</h2>
+          <p>
+            Measured on a held-out 20% of the dataset &mdash; records the model
+            never saw while fitting. Every figure below comes straight from the
+            <code>/api/v1/model-info</code> endpoint.
+          </p>
+        </header>
+
+        <!-- Tiles are filled in from /api/v1/model-info -->
+        <div class="metrics">
+          <div class="metric">
+            <span class="metric__label">R&sup2; score</span>
+            <span class="metric__value" id="m-r2">&mdash;</span>
+            <span class="metric__hint">share of variation explained</span>
+            <span class="metric__bar"><span class="metric__fill" id="m-r2-bar"></span></span>
+          </div>
+          <div class="metric">
+            <span class="metric__label">MAE</span>
+            <span class="metric__value" id="m-mae">&mdash;</span>
+            <span class="metric__hint">average miss, in USD</span>
+          </div>
+          <div class="metric">
+            <span class="metric__label">RMSE</span>
+            <span class="metric__value" id="m-rmse">&mdash;</span>
+            <span class="metric__hint">large misses hurt more</span>
+          </div>
+          <div class="metric">
+            <span class="metric__label">Model</span>
+            <span class="metric__value metric__value--sm" id="m-model">&mdash;</span>
+            <span class="metric__hint" id="m-version">&mdash;</span>
+          </div>
+        </div>
+
+        <div class="charts">
+          <figure class="chart">
+            <div class="chart__head">
+              <h3>Reading the two error figures</h3>
+              <p>
+                MAE is the typical distance between a prediction and the real
+                charge. RMSE squares each miss before averaging, so a handful of
+                very wrong predictions pushes it well above MAE. A small gap
+                between the two means the model is not hiding a few disasters.
+              </p>
+            </div>
+          </figure>
+          <figure class="chart">
+            <div class="chart__head">
+              <h3>Reading R&sup2;</h3>
+              <p>
+                R&sup2; is the share of the variation in charges the model can
+                explain. 1.0 would be a perfect fit and 0.0 no better than
+                always guessing the average. Because medical charges are driven
+                mostly by smoking status and age, a strong model still leaves
+                some real-world noise unexplained &mdash; the gap is expected,
+                not a bug.
+              </p>
+            </div>
+          </figure>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= how it works ================= -->
+    <section class="how" id="how">
+      <div class="wrap">
+        <h2 class="how__title">How the estimate is built</h2>
+        <div class="how__grid">
+          <article class="card how__card">
+            <span class="how__num">01</span>
+            <h3>Your six inputs</h3>
+            <p>Age, sex, BMI, number of children, smoking status and region are the features the model uses. Nothing else is collected.</p>
+          </article>
+          <article class="card how__card">
+            <span class="how__num">02</span>
+            <h3>Polynomial expansion</h3>
+            <p>The inputs are scaled, one-hot encoded, then expanded into degree-2 terms so the model can capture curves and interactions.</p>
+          </article>
+          <article class="card how__card">
+            <span class="how__num">03</span>
+            <h3>Linear regression</h3>
+            <p>A least-squares fit over those terms returns one predicted annual charge, which this page displays in USD.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ================= footer ================= -->
+  <footer class="foot">
+    <div class="wrap foot__inner">
+      <p>&copy; MediQuote &mdash; demonstration project. Not a licensed insurer.</p>
+      <p class="foot__model" id="foot-model"></p>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,26 @@
+# Medical Cost Prediction API - Python dependencies
+#
+# Install with:
+#     python3 -m venv .venv
+#     source .venv/bin/activate
+#     pip install -r requirements.txt
+#
+# Versions below are pinned to the exact set that was tested on
+# Python 3.14 (macOS, Apple Silicon). If you use a different Python version
+# and pip complains, delete the "==" pins and run `pip install -r requirements.txt`
+# again to get the newest compatible releases.
+
+# --- Web framework ------------------------------------------------------
+fastapi==0.121.3
+uvicorn[standard]==0.41.0
+
+# --- Data validation ----------------------------------------------------
+pydantic==2.12.5
+
+# --- Machine learning ---------------------------------------------------
+# pandas  -> load and manipulate the CSV
+# numpy   -> maths helpers (RMSE)
+# scikit-learn -> one-hot encoding helper, train/test split, the model itself
+pandas==3.0.6
+numpy==2.5.3
+scikit-learn==1.9.1

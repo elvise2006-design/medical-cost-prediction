@@ -1,0 +1,371 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Medical Cost Prediction API",
+  "version": "2.0",
+  "description": "Stable public contract for the medical cost prediction service. These request and response shapes are guaranteed not to change when the underlying machine-learning model is replaced.",
+  "baseUrl": "http://127.0.0.1:8000",
+  "apiPrefix": "/api/v1",
+  "contentType": "application/json",
+  "model": {
+    "name": "Polynomial Regression",
+    "version": "2.0"
+  },
+  "cors": {
+    "allowedOrigins": [
+      "http://127.0.0.1:5500",
+      "http://localhost:5500"
+    ]
+  },
+  "endpoints": [
+    {
+      "method": "GET",
+      "path": "/",
+      "summary": "API status",
+      "responses": {
+        "200": {
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/definitions/StatusResponse" },
+              "example": {
+                "success": true,
+                "message": "Medical Cost Prediction API is running.",
+                "model": "Polynomial Regression",
+                "model_version": "2.0",
+                "currency": "USD",
+                "docs": "/docs",
+                "endpoints": [
+                  "GET  /api/v1/health",
+                  "GET  /api/v1/model-info",
+                  "POST /api/v1/predict"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/health",
+      "summary": "Liveness check",
+      "description": "Confirms the API process is running. Does not touch the model, so it returns 200 even when the dataset is missing.",
+      "responses": {
+        "200": {
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/definitions/HealthResponse" },
+              "example": { "success": true, "status": "healthy" }
+            }
+          }
+        }
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/model-info",
+      "summary": "Loaded model and its validation metrics",
+      "responses": {
+        "200": {
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/definitions/ModelInfoResponse" },
+              "example": {
+                "success": true,
+                "model": "Polynomial Regression",
+                "model_version": "2.0",
+                "metrics": {
+                  "MAE": 2867.32,
+                  "RMSE": 4646.06,
+                  "R2": 0.8825
+                }
+              }
+            }
+          }
+        },
+        "503": {
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/definitions/ErrorResponse" },
+              "example": {
+                "success": false,
+                "error": {
+                  "code": "DATASET_NOT_FOUND",
+                  "message": "Training dataset not found at /path/to/data/insurance.csv. Place insurance.csv in the project's data/ folder and restart the server."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/predict",
+      "summary": "Predict medical charges in USD",
+      "request": {
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/definitions/PredictionRequest" },
+            "example": {
+              "age": 34,
+              "sex": "male",
+              "bmi": 27.8,
+              "children": 2,
+              "smoker": "no",
+              "region": "northwest"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/definitions/PredictionResponse" },
+              "example": {
+                "success": true,
+                "predicted_medical_charges_usd": 7601.87,
+                "currency": "USD",
+                "model": "Polynomial Regression",
+                "model_version": "2.0",
+                "input": {
+                  "age": 34,
+                  "sex": "male",
+                  "bmi": 27.8,
+                  "children": 2,
+                  "smoker": "no",
+                  "region": "northwest"
+                }
+              }
+            }
+          }
+        },
+        "422": {
+          "description": "Input failed validation.",
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/definitions/ErrorResponse" },
+              "example": {
+                "success": false,
+                "error": {
+                  "code": "VALIDATION_ERROR",
+                  "message": "age: Input should be less than or equal to 100"
+                }
+              }
+            }
+          }
+        },
+        "500": {
+          "description": "The prediction could not be produced.",
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/definitions/ErrorResponse" },
+              "example": {
+                "success": false,
+                "error": {
+                  "code": "PREDICTION_FAILED",
+                  "message": "Prediction failed: ..."
+                }
+              }
+            }
+          }
+        },
+        "503": {
+          "description": "The training dataset is missing or unreadable.",
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/definitions/ErrorResponse" },
+              "example": {
+                "success": false,
+                "error": {
+                  "code": "DATASET_NOT_FOUND",
+                  "message": "Training dataset not found at /path/to/data/insurance.csv."
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  ],
+  "definitions": {
+    "PredictionRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["age", "sex", "bmi", "children", "smoker", "region"],
+      "properties": {
+        "age": {
+          "type": "integer",
+          "minimum": 18,
+          "maximum": 100,
+          "description": "Age in years.",
+          "example": 34
+        },
+        "sex": {
+          "type": "string",
+          "enum": ["male", "female"],
+          "description": "Case-insensitive; surrounding whitespace is trimmed.",
+          "example": "male"
+        },
+        "bmi": {
+          "type": "number",
+          "minimum": 10,
+          "maximum": 70,
+          "description": "Body Mass Index.",
+          "example": 27.8
+        },
+        "children": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 10,
+          "description": "Number of children.",
+          "example": 2
+        },
+        "smoker": {
+          "type": "string",
+          "enum": ["yes", "no"],
+          "description": "Case-insensitive; surrounding whitespace is trimmed.",
+          "example": "no"
+        },
+        "region": {
+          "type": "string",
+          "enum": ["northeast", "northwest", "southeast", "southwest"],
+          "description": "Case-insensitive; surrounding whitespace is trimmed.",
+          "example": "northwest"
+        }
+      }
+    },
+    "PredictionResponse": {
+      "type": "object",
+      "required": [
+        "success",
+        "predicted_medical_charges_usd",
+        "currency",
+        "model",
+        "model_version",
+        "input"
+      ],
+      "properties": {
+        "success": { "type": "boolean", "example": true },
+        "predicted_medical_charges_usd": {
+          "type": "number",
+          "description": "Predicted medical charges in USD. Never negative. Rounded to 2 decimals.",
+          "example": 7601.87
+        },
+        "currency": { "type": "string", "example": "USD" },
+        "model": {
+          "type": "string",
+          "description": "Name of the model that produced this number. A string, so it can change without breaking clients.",
+          "example": "Polynomial Regression"
+        },
+        "model_version": {
+          "type": "string",
+          "description": "Version of the model. A string, so it can change without breaking clients.",
+          "example": "2.0"
+        },
+        "input": {
+          "type": "object",
+          "description": "Echo of the request after case/whitespace normalisation.",
+          "example": {
+            "age": 34,
+            "sex": "male",
+            "bmi": 27.8,
+            "children": 2,
+            "smoker": "no",
+            "region": "northwest"
+          }
+        }
+      }
+    },
+    "ModelInfoResponse": {
+      "type": "object",
+      "required": ["success", "model", "model_version", "metrics"],
+      "properties": {
+        "success": { "type": "boolean", "example": true },
+        "model": { "type": "string", "example": "Polynomial Regression" },
+        "model_version": { "type": "string", "example": "2.0" },
+        "metrics": {
+          "type": "object",
+          "description": "Scores on the held-out 20% of the dataset (random_state=42).",
+          "required": ["MAE", "RMSE", "R2"],
+          "properties": {
+            "MAE": {
+              "type": "number",
+              "description": "Mean Absolute Error, in USD. Average size of the mistakes.",
+              "example": 2867.32
+            },
+            "RMSE": {
+              "type": "number",
+              "description": "Root Mean Squared Error, in USD. Penalises large mistakes more than MAE.",
+              "example": 4646.06
+            },
+            "R2": {
+              "type": "number",
+              "description": "R-squared. 1.0 is a perfect prediction; 0.0 is no better than guessing the average.",
+              "example": 0.8825
+            }
+          }
+        }
+      }
+    },
+    "HealthResponse": {
+      "type": "object",
+      "required": ["success", "status"],
+      "properties": {
+        "success": { "type": "boolean", "example": true },
+        "status": { "type": "string", "example": "healthy" }
+      }
+    },
+    "StatusResponse": {
+      "type": "object",
+      "required": ["success", "message", "model", "model_version", "docs", "endpoints"],
+      "properties": {
+        "success": { "type": "boolean", "example": true },
+        "message": { "type": "string", "example": "Medical Cost Prediction API is running." },
+        "model": { "type": "string", "example": "Polynomial Regression" },
+        "model_version": { "type": "string", "example": "2.0" },
+        "currency": { "type": "string", "example": "USD" },
+        "docs": { "type": "string", "example": "/docs" },
+        "endpoints": {
+          "type": "array",
+          "items": { "type": "string" },
+          "example": ["GET  /api/v1/health", "GET  /api/v1/model-info", "POST /api/v1/predict"]
+        }
+      }
+    },
+    "ErrorResponse": {
+      "type": "object",
+      "description": "The single error shape used by every failing endpoint.",
+      "required": ["success", "error"],
+      "properties": {
+        "success": { "type": "boolean", "example": false },
+        "error": {
+          "type": "object",
+          "required": ["code", "message"],
+          "properties": {
+            "code": {
+              "type": "string",
+              "description": "Stable machine-readable code.",
+              "enum": [
+                "VALIDATION_ERROR",
+                "PREDICTION_FAILED",
+                "MODEL_ERROR",
+                "DATASET_NOT_FOUND",
+                "NOT_FOUND",
+                "METHOD_NOT_ALLOWED",
+                "HTTP_ERROR",
+                "INTERNAL_ERROR"
+              ]
+            },
+            "message": {
+              "type": "string",
+              "description": "Human-readable explanation.",
+              "example": "age: Input should be less than or equal to 100"
+            }
+          }
+        }
+      }
+    }
+  }
+}

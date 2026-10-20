@@ -1,0 +1,1 @@
+"""Pydantic request/response models. Validation only, no business logic."""
