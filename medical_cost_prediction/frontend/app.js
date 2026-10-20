@@ -16,8 +16,8 @@
    --------------------------------------------------------------------------- */
 
 /* Where the backend lives. */
-const API_URL = "http://127.0.0.1:8001/api/v1/predict";
-const META_URL = "http://127.0.0.1:8001/api/v1/model-info";
+const API_URL = "https://medical-cost-prediction-1-xs28.onrender.com/api/v1/predict";
+const META_URL = "https://medical-cost-prediction-1-xs28.onrender.com/api/v1/model-info";
 
 /* --- Elements --- */
 const form = document.getElementById("quote-form");
